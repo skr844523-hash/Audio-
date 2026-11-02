@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101126">
+<title>اعكس صوتك 🎙️</title>
+<style>
+:root{color-scheme:dark;--bg:#101126;--panel:#191b37;--panel2:#222447;--text:#f7f7ff;--muted:#b4b7d4;--purple:#a78bfa;--pink:#f472b6;--line:#34365e}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:radial-gradient(ellipse at top,#28204d 0%,var(--bg) 52%);color:var(--text);padding:20px 14px 36px}
+main{max-width:520px;margin:0 auto}
+header{text-align:center;padding:18px 8px 24px}
+.logo{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,#8b5cf6,#ec4899);font-size:36px;box-shadow:0 12px 35px #8b5cf644}
+h1{font-size:clamp(28px,7vw,38px);margin:0 0 8px;letter-spacing:-.6px}
+header p{color:var(--muted);margin:0;line-height:1.7}
+.card{background:linear-gradient(160deg,#1d1f3e,#17182f);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:14px;box-shadow:0 12px 35px #0002}
+.card h2{font-size:18px;margin:0 0 14px}
+.rec-indicator{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin-bottom:16px}
+.dot{width:9px;height:9px;background:#777b9f;border-radius:50%}.dot.live{background:#fb7185;box-shadow:0 0 0 5px #fb718522;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.45}}
+.timer{text-align:center;font-size:34px;font-variant-numeric:tabular-nums;font-weight:750;margin:12px 0 18px;direction:ltr}
+.wave{height:60px;display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0 18px;overflow:hidden}
+.wave span{width:4px;border-radius:5px;background:linear-gradient(#c4b5fd,#ec4899);height:var(--h,12px);opacity:.85}
+button,.file-label{border:0;border-radius:15px;padding:14px 16px;font:inherit;font-weight:750;cursor:pointer;transition:transform .12s,opacity .12s}
+button:active,.file-label:active{transform:scale(.98)}
+button:disabled{opacity:.42;cursor:not-allowed}
+.primary{background:linear-gradient(100deg,#8b5cf6,#d946ef);color:white;box-shadow:0 8px 22px #a855f733}
+.secondary{background:var(--panel2);color:var(--text);border:1px solid #3c3e69}
+.danger{background:#51233f;color:#ffd5e6;border:1px solid #85375e}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions .wide{grid-column:1/-1}
+.help{font-size:13px;color:var(--muted);line-height:1.8;margin:14px 0 0}
+.status{margin-top:14px;border-radius:13px;background:#12142a;padding:12px 13px;color:#d9d9f7;font-size:14px;line-height:1.7;min-height:46px}
+.track{height:7px;background:#303252;border-radius:9px;overflow:hidden;margin:12px 0}
+.track div{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#f472b6);transition:width .15s}
+audio{width:100%;margin-top:12px;display:block}
+.hidden{display:none!important}
+.note{font-size:13px;color:var(--muted);line-height:1.8}
+footer{text-align:center;color:#888caf;font-size:12px;padding:8px}
+.file-label{display:block;text-align:center;background:var(--panel2);border:1px solid #3c3e69;color:var(--text);margin-top:10px}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo" aria-hidden="true">🎙️</div>
+  <h1>اعكس صوتك</h1>
+  <p>سجّل صوتك، اقلبه من الآخر للأول، واضحك مع النتيجة 😂</p>
+</header>
+
+<section class="card">
+  <h2>🎤 سجّل صوت جديد</h2>
+  <div class="rec-indicator"><span id="dot" class="dot"></span><span id="recLabel">جاهز للتسجيل</span></div>
+  <div class="timer" id="timer">00:00</div>
+  <div class="wave" id="wave" aria-hidden="true"></div>
+  <div class="actions">
+    <button class="primary" id="recordBtn">● ابدأ التسجيل</button>
+    <button class="secondary" id="stopBtn" disabled>■ إيقاف التسجيل</button>
+  </div>
+  <p class="help">اضغط «ابدأ التسجيل» واسمح باستخدام الميكروفون. اضغط إيقاف لما تخلص. التسجيل بيتم على جهازك.</p>
+</section>
+
+<section class="card">
+  <h2>🔁 اعكس التسجيل</h2>
+  <div class="note">تقدر تعكس التسجيل اللي عملته أو تختار ملف صوت من موبايلك.</div>
+  <label class="file-label" for="fileInput">📂 اختار ملف صوت من الموبايل</label>
+  <input id="fileInput" type="file" accept="audio/*">
+  <div class="track"><div id="progress"></div></div>
+  <div class="actions">
+    <button class="primary wide" id="reverseBtn" disabled>✨ اعكس الصوت</button>
+    <button class="secondary" id="playOriginalBtn" disabled>▶️ الصوت الأصلي</button>
+    <button class="secondary" id="playReverseBtn" disabled>◀️ الصوت المعكوس</button>
+    <button class="secondary wide" id="downloadBtn" disabled>⬇️ حفظ الصوت المعكوس</button>
+  </div>
+  <audio id="player" controls class="hidden"></audio>
+  <div id="status" class="status" role="status" aria-live="polite">ابدأ بتسجيل صوت أو اختار ملفًا صوتيًا من جهازك.</div>
+  <p class="help">ملاحظة: عكس الصوت يعني تشغيل عينات الصوت بالترتيب المعاكس، لذلك الكلام غالبًا هيبقى غير مفهوم. الملف المعكوس بيتجهز بصيغة WAV.</p>
+</section>
+<footer>خصوصيتك مهمة: المعالجة بتتم داخل المتصفح ولا يتم رفع التسجيل لأي خادم.</footer>
+</main>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const recordBtn=$('recordBtn'), stopBtn=$('stopBtn'), reverseBtn=$('reverseBtn');
+const playOriginalBtn=$('playOriginalBtn'), playReverseBtn=$('playReverseBtn'), downloadBtn=$('downloadBtn');
+const timerEl=$('timer'), recLabel=$('recLabel'), dot=$('dot'), status=$('status'), progress=$('progress');
+const player=$('player'), fileInput=$('fileInput'), wave=$('wave');
+let mediaRecorder=null, stream=null, chunks=[], originalBuffer=null, reversedBlob=null;
+let recordingStart=0, timerInterval=null, audioContext=null, originalUrl=null, reversedUrl=null, sourceName='recording';
+for(let i=0;i<31;i++){const b=document.createElement('span');b.style.setProperty('--h',(8+Math.abs(Math.sin(i*2.17))*43)+'px');wave.appendChild(b);}
+function message(s){status.textContent=s}
+function timeFmt(sec){sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+function resetReverse(){reversedBlob=null;reverseBtn.disabled=!originalBuffer;playReverseBtn.disabled=true;downloadBtn.disabled=true;progress.style.width='0%';if(reversedUrl){URL.revokeObjectURL(reversedUrl);reversedUrl=null}}
+function setOriginal(buffer,name='audio'){originalBuffer=buffer;sourceName=name;resetReverse();playOriginalBtn.disabled=false;reverseBtn.disabled=false;message('الصوت جاهز. اضغط «اعكس الصوت» عشان تقلبه من الآخر للأول.')}
+async function getContext(){if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')await audioContext.resume();return audioContext}
+recordBtn.addEventListener('click',async()=>{
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){message('المتصفح لا يدعم التسجيل هنا. افتح الصفحة في Chrome وتأكد أنك تستخدم اتصالًا آمنًا (HTTPS).');return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    chunks=[];
+    let options={};
+    if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))options.mimeType='audio/webm;codecs=opus';
+    mediaRecorder=new MediaRecorder(stream,options);
+    mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    mediaRecorder.onstop=async()=>{
+      try{
+        const blob=new Blob(chunks,{type:mediaRecorder.mimeType||'audio/webm'});
+        const ctx=await getContext();const arr=await blob.arrayBuffer();const decoded=await ctx.decodeAudioData(arr);
+        setOriginal(decoded,'recording');message('تم حفظ التسجيل داخل الصفحة. دلوقتي تقدر تعكسه أو تسمعه.');
+      }catch(e){message('التسجيل اتعمل لكن المتصفح ما قدرش يقرأه. جرّب Chrome أو سجّل مدة أقصر.')}
+      if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+    };
+    mediaRecorder.start();recordingStart=Date.now();timerEl.textContent='00:00';recLabel.textContent='جاري التسجيل…';dot.classList.add('live');
+    recordBtn.disabled=true;stopBtn.disabled=false;fileInput.disabled=true;
+    timerInterval=setInterval(()=>timerEl.textContent=timeFmt((Date.now()-recordingStart)/1000),250);
+    message('بسجّل دلوقتي… اتكلم في الميكروفون واضغط إيقاف لما تخلص.');
+  }catch(e){message(e.name==='NotAllowedError'?'لازم تسمح للمتصفح باستخدام الميكروفون من إعدادات الموقع.':'مش قادر أوصل للميكروفون. تأكد إنه مش مستخدم في تطبيق تاني وجرّب تاني.')}
+});
+stopBtn.addEventListener('click',()=>{
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+  clearInterval(timerInterval);recordBtn.disabled=false;stopBtn.disabled=true;fileInput.disabled=false;
+  recLabel.textContent='تم إيقاف التسجيل';dot.classList.remove('live');
+});
+fileInput.addEventListener('change',async()=>{
+ const file=fileInput.files?.[0];if(!file)return;
+ try{message('بفتح الملف الصوتي…');const ctx=await getContext();const buf=await file.arrayBuffer();const decoded=await ctx.decodeAudioData(buf);setOriginal(decoded,file.name);timerEl.textContent=timeFmt(decoded.duration)}
+ catch(e){message('مش قادر أفتح الملف ده. اختار ملف صوت شائع زي WAV أو MP3 أو M4A.')}
+});
+reverseBtn.addEventListener('click',async()=>{
+ if(!originalBuffer)return;
+ reverseBtn.disabled=true;playOriginalBtn.disabled=true;playReverseBtn.disabled=true;downloadBtn.disabled=true;progress.style.width='5%';message('جاري عكس الصوت… لو التسجيل طويل ممكن يستغرق شوية.');
+ try{
+   const ctx=await getContext();const length=originalBuffer.length, channels=originalBuffer.numberOfChannels;
+   const reversed=ctx.createBuffer(channels,length,originalBuffer.sampleRate);
+   for(let c=0;c<channels;c++){
+     const src=originalBuffer.getChannelData(c), dst=reversed.getChannelData(c);
+     const chunk=250000;
+     for(let start=0;start<length;start+=chunk){
+       const end=Math.min(length,start+chunk);
+       for(let i=start;i<end;i++)dst[i]=src[length-1-i];
+       progress.style.width=(5+90*end/length)+'%';
+       if(start+chunk<length)await new Promise(r=>setTimeout(r,0));
+     }
+   }
+   reversedBlob=encodeWav(reversed);
+   if(reversedUrl)URL.revokeObjectURL(reversedUrl);
+   reversedUrl=URL.createObjectURL(reversedBlob);
+   progress.style.width='100%';playOriginalBtn.disabled=false;playReverseBtn.disabled=false;downloadBtn.disabled=false;
+   message('خلصنا! 🎉 اضغط «الصوت المعكوس» عشان تسمع النتيجة، أو احفظه على موبايلك.');
+ }catch(e){message('حصلت مشكلة أثناء عكس الصوت. جرّب ملف أقصر.');}
+ finally{reverseBtn.disabled=!originalBuffer}
+});
+function encodeWav(buffer){
+ const channels=buffer.numberOfChannels,sampleRate=buffer.sampleRate,frames=buffer.length;
+ const bytesPerSample=2, dataSize=frames*channels*bytesPerSample, ab=new ArrayBuffer(44+dataSize),v=new DataView(ab);
+ const write=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+ write(0,'RIFF');v.setUint32(4,36+dataSize,true);write(8,'WAVE');write(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,channels,true);v.setUint32(24,sampleRate,true);v.setUint32(28,sampleRate*channels*bytesPerSample,true);v.setUint16(32,channels*bytesPerSample,true);v.setUint16(34,16,true);write(36,'data');v.setUint32(40,dataSize,true);
+ const data=Array.from({length:channels},(_,c)=>buffer.getChannelData(c));let offset=44;
+ for(let i=0;i<frames;i++)for(let c=0;c<channels;c++){let s=Math.max(-1,Math.min(1,data[c][i]));v.setInt16(offset,s<0?s*32768:s*32767,true);offset+=2}
+ return new Blob([ab],{type:'audio/wav'});
+}
+playOriginalBtn.addEventListener('click',async()=>{if(!originalBuffer)return;const ctx=await getContext();const src=ctx.createBufferSource();src.buffer=originalBuffer;src.connect(ctx.destination);src.start()});
+playReverseBtn.addEventListener('click',()=>{if(!reversedUrl)return;player.src=reversedUrl;player.classList.remove('hidden');player.play().catch(()=>message('اضغط زر التشغيل في مشغل الصوت.'))});
+downloadBtn.addEventListener('click',()=>{
+ if(!reversedBlob)return;
+ const url=URL.createObjectURL(reversedBlob),a=document.createElement('a');a.href=url;a.download='ma3koos-sawt.wav';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ message('بدأ تنزيل الملف المعكوس. لو ما ظهرش، افتح مجلد التنزيلات في موبايلك.');
+});
+})();
+</script>
+</body>
+</html>
